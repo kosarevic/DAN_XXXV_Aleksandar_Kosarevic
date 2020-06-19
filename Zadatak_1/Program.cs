@@ -12,13 +12,15 @@ namespace Zadatak_1
         public static int users = 0;
         public static int number = 0;
         public static List<Thread> threads = new List<Thread>();
+        public static Random r = new Random();
+        private static readonly object theLock = new object();
 
         static void Main(string[] args)
         {
             Thread t = new Thread(Menu);
             t.Start();
             t.Join();
-
+            Console.ReadLine();
         }
 
         static void Menu()
@@ -27,27 +29,36 @@ namespace Zadatak_1
             users = int.Parse(Console.ReadLine());
             Console.WriteLine("Input number to be guessed. (1-100)");
             number = int.Parse(Console.ReadLine());
+            Console.WriteLine();
 
             Thread Thread_Generator = new Thread(Generator);
             Thread_Generator.Start();
 
-            Console.WriteLine("User successfully inserted participants.");
             Console.WriteLine("Number of participants is: {0}", users);
-            Console.WriteLine("Chosen number to be guessed: {0}", number);
+            Console.WriteLine("Chosen number to be guessed: {0}\n", number);
         }
 
         static void Generator()
         {
             for (int i = 1; i <= users; i++)
             {
-                Thread t = new Thread();
+                Thread t = new Thread(StartThreads);
                 t.Name = string.Format("Participant_{0}", i);
                 threads.Add(t);
             }
+            Console.WriteLine("Thread_Generator has completed its task.\n");
+
+            foreach (Thread t in threads)
+            {
+                t.Start();
+            }
         }
 
-        static void AddToList()
+        static void StartThreads()
         {
+            Thread.Sleep(100);
+            int random = r.Next(1, 100);
+            Console.WriteLine("{0} tried to guess {1}", Thread.CurrentThread.Name, random);
 
         }
     }

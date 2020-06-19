@@ -13,7 +13,9 @@ namespace Zadatak_1
         public static int number = 0;
         public static List<Thread> threads = new List<Thread>();
         public static Random r = new Random();
-        private static readonly object theLock = new object();
+        public static readonly object theLock = new object();
+        public static bool mainPair = false;
+        public static bool guessed = false;
 
         static void Main(string[] args)
         {
@@ -30,6 +32,8 @@ namespace Zadatak_1
             Console.WriteLine("Input number to be guessed. (1-100)");
             number = int.Parse(Console.ReadLine());
             Console.WriteLine();
+
+            if (number % 2 == 0) mainPair = true;
 
             Thread Thread_Generator = new Thread(Generator);
             Thread_Generator.Start();
@@ -56,10 +60,42 @@ namespace Zadatak_1
 
         static void StartThreads()
         {
-            Thread.Sleep(100);
-            int random = r.Next(1, 100);
-            Console.WriteLine("{0} tried to guess {1}", Thread.CurrentThread.Name, random);
+            while (!guessed)
+            {
+                if (!guessed)
+                {
 
+                    int random = r.Next(1, 100);
+                    bool guessPair = false;
+                    Thread.Sleep(100);
+                    if (guessed)
+                    {
+                        Thread.CurrentThread.Abort();
+                    }
+                    else if (random % 2 == 0)
+                    {
+                        guessPair = true;
+                    }
+
+                    if (random == number && !guessed)
+                    {
+                        Console.WriteLine("{0} has won with the number {1}", Thread.CurrentThread.Name, random);
+                        guessed = true;
+                    }
+                    else if (guessPair == mainPair && !guessed)
+                    {
+                        Console.WriteLine("{0} tried to guess {1}, and has guessed number parity.", Thread.CurrentThread.Name, random);
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0} tried to guess {1}", Thread.CurrentThread.Name, random);
+                    }
+                }
+                else
+                {
+                    Thread.CurrentThread.Abort();
+                } 
+            }
         }
     }
 }
